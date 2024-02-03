@@ -16,17 +16,26 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
 });
 
 async function generateContent() {
-  const req = {
-    contents: [{role: 'user', parts: []}],
-  };
+    const req = {
+        contents: [{ role: 'user', parts: [{ text: "make a schedule for a student" }] }], // put prompt here
+      };
+    
+      const streamingResp = await generativeModel.generateContentStream(req);
+    
+      for await (const item of streamingResp.stream) {
+        if (item?.content?.role === 'model' && Array.isArray(item.content.parts)) {
+          for (const part of item.content.parts) {
+            if (part.text) {
+              console.log('stream chunk:', part.text);
+            }
+          }
+        }
+      }
+    
+      //console.log('aggregated response:', JSON.stringify(await streamingResp.response));
+      let r = await streamingResp.response;
+      console.log(r['candidates'][0]['content']['parts'][0]['text']);
 
-  const streamingResp = await generativeModel.generateContentStream(req);
-
-  for await (const item of streamingResp.stream) {
-    process.stdout.write('stream chunk: ' + item);
-  }
-
-  process.stdout.write('aggregated response: ' + (await streamingResp.response));
 };
 
 generateContent();
