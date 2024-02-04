@@ -108,6 +108,31 @@ async function sendPromptTest() {
   };
 }
 
+async function regularPrompt() {
+  const readline = require('readline');
+
+  function getInput(query) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    return new Promise(resolve => rl.question(query, ans => {
+        rl.close();
+        resolve(ans);
+    }))
+}
+
+const userPrompt = await getInput("Enter prompt: ");
+
+  return {
+    contents: [{
+      role: 'user',
+      parts: [{ text: userPrompt }],
+    }],
+  };
+}
+
 async function sendPrompt() {
   try {
     console.log("Sending prompt...")
@@ -216,7 +241,8 @@ async function sendPrompt() {
 }
 
 async function generateContent() {
-  const req = await sendPrompt();
+  const req = await sendPrompt(); // Improve schedule ICS
+  //const req = await regularPrompt();
 
   const streamingResp = await generativeModel.generateContentStream(req);
 
@@ -234,30 +260,30 @@ async function generateContent() {
   let rawResponse = await streamingResp.response;
   let finalResponse = rawResponse['candidates'][0]['content']['parts'][0]['text'].replace("```", "");
   console.log(finalResponse)
+  
+    const calendarMatch = finalResponse.match(/BEGIN:VCALENDAR([\s\S]*?)END:VCALENDAR/);
+    const calendarString = calendarMatch ? calendarMatch[0] : '';
 
-  const calendarMatch = finalResponse.match(/BEGIN:VCALENDAR([\s\S]*?)END:VCALENDAR/);
-  const calendarString = calendarMatch ? calendarMatch[0] : '';
+    // Extract the content between the first "{" and the last "}"
+    let jsonString = '';
+    const jsonMatch = finalResponse.match(/\{([\s\S]*)\}/);
+    if (jsonMatch) {
+      jsonString = "{" + jsonMatch[1] + "}";
+    }
 
-  // Extract the content between the first "{" and the last "}"
-  let jsonString = '';
-  const jsonMatch = finalResponse.match(/\{([\s\S]*)\}/);
-  if (jsonMatch) {
-    jsonString = "{" + jsonMatch[1] + "}";
-  }
+    // Function to generate a random 6-digit number
+    function generateRandomNumber() {
+      return Math.floor(100000 + Math.random() * 900000);
+    }
 
-  // Function to generate a random 6-digit number
-  function generateRandomNumber() {
-    return Math.floor(100000 + Math.random() * 900000);
-  }
+    // Write finalResponse to a text file
+    const icsFileName = `calendar_${generateRandomNumber()}.ics`;
+    const JSONFileName = "time_loc_data.json";
+    fs.writeFileSync(icsFileName, calendarString, 'utf-8');
+    console.log(`Results written to ${icsFileName}`);
 
-  // Write finalResponse to a text file
-  const icsFileName = `calendar_${generateRandomNumber()}.ics`;
-  const JSONFileName = "time_loc_data.json";
-  fs.writeFileSync(icsFileName, calendarString, 'utf-8');
-  console.log(`Results written to ${icsFileName}`);
-
-  fs.writeFileSync(JSONFileName, jsonString, 'utf-8');  
-  console.log(`Results written to ${JSONFileName}`);
+    fs.writeFileSync(JSONFileName, jsonString, 'utf-8');  
+    console.log(`Results written to ${JSONFileName}`);
 }
 
 generateContent();
