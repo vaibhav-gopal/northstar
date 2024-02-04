@@ -37,3 +37,6 @@ next-env.d.ts
 
 # Vertex AI
 trusty-drive-413218-7732a240ce25.json
+
+# Calendar ICS files
+calendar_*.ics

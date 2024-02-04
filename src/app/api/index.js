@@ -19,7 +19,7 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
 
 async function generateContent() {
   const req = {
-    contents: [{ role: 'user', parts: [{ text: "make a schedule for a student. Ensure it is in the format of an ICS file" }] }],
+    contents: [{ role: 'user', parts: [{ text: "make a schedule for a student on the day of February 3, 2024. Specify names and times of events, in the Toronto timezone. Incorporate the pomodorro method for studying, where 25 minutes of studying for a class is followed by a 5 minute break. Ensure it is in the format of an ICS file" }] }],
   };
 
   const streamingResp = await generativeModel.generateContentStream(req);
@@ -36,11 +36,16 @@ async function generateContent() {
 
   //console.log('aggregated response:', JSON.stringify(await streamingResp.response));
   let rawResponse = await streamingResp.response;
-  let finalResponse = rawResponse['candidates'][0]['content']['parts'][0]['text']
+  let finalResponse = rawResponse['candidates'][0]['content']['parts'][0]['text'].replace("```", "");
   console.log(finalResponse)
 
+  // Function to generate a random 6-digit number
+  function generateRandomNumber() {
+  return Math.floor(100000 + Math.random() * 900000);
+}
+
   // Write finalResponse to a text file
-  const icsFileName = 'calendar.ics';
+  const icsFileName = `calendar_${generateRandomNumber()}.ics`;
   fs.writeFileSync(icsFileName, finalResponse, 'utf-8');
 
   console.log(`Results written to ${icsFileName}`);
