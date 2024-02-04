@@ -17,9 +17,11 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
   safety_settings: [],
 });
 
-async function sendPrompt() {
+async function sendPromptTest() {
+
+
   return {
-    contents: [{ role: 'user', parts: [{ text: `Make an ICS file for a schedule for a student that has the following format. In addition, make a JSON file that contains the locations (longitude and latitude) and times in the calendar where the user has to be someplace.
+    contents: [{ role: 'user', parts: [{ text: `Make an ICS file for a schedule for a student that has the following format. 
 
     BEGIN:VCALENDAR
     VERSION:2.0
@@ -78,8 +80,58 @@ async function sendPrompt() {
     SUMMARY:Lunch
     LOCATION:Cafeteria
     END:VEVENT
-    ` }] }],
+    
+    In addition, make a JSON file in the below format that contains the locations (longitude and latitude) and times in the calendar where the user has to be someplace. Must follow the format but can change the content appropriately.
+    {
+      "events": [
+        {
+          "name": "English class",
+          "location": {
+            "longitude": -118.2437,
+            "latitude": 34.0522
+          },
+          "time": {
+            "start": "2023-08-28T08:00:00",
+            "end": "2023-08-28T09:00:00"
+          }
+        },
+        {
+          "name": "Math class",
+          "location": {
+            "longitude": -118.2437,
+            "latitude": 34.0522
+          },
+          "time": {
+            "start": "2023-08-28T09:00:00",
+            "end": "2023-08-28T10:00:00"
+          }
+        }]}` }] }],
   };
+}
+
+async function sendPrompt() {
+  try {
+    // Replace 'calendar_288563.ics' with the actual file name
+    const fileName = 'calendar_288563.ics';
+    const fileContent = fs.readFileSync(fileName, 'utf-8');
+    console.log(fileContent);
+
+    return {
+      contents: [{
+        role: 'user',
+        parts: [{ text: `Make changes to this ICS file to improve the schedule for a student and give them the best possible performance thorughout the day:\n${fileContent}` }],
+      }],
+    };
+  } catch (error) {
+    console.error('Error reading file:', error.message);
+    // Handle the error or return a default prompt
+    return {
+      contents: [{
+        role: 'user',
+        parts: [{ text: 'Default prompt text' }],
+      }],
+    };
+  }
 }
 
 async function generateContent() {
