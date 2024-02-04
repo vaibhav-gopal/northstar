@@ -13,7 +13,7 @@ export default function Home() {
     if (user) {
       redirect('/dashboard');
     }
-  }, [user])
+  }, [user]);
 
   return (
     <div className="flex mx-auto min-h-screen flex-col items-center justify-start px-14 max-w-6xl">
@@ -25,7 +25,6 @@ export default function Home() {
       <img className = "py-20" src="/LogoStuff.png"/>
       <div className="flex flex-row justify-center gap-24 my-24">
         <Button link="/api/auth/login" text='Start Your Journey'></Button>
-        <Button link="/api/auth/logout" text='Logout'></Button>
       </div>
     </div>
   );
