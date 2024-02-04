@@ -12,8 +12,8 @@ export default function Home() {
       </h1>
       <img className = "py-20" src="/LogoStuff.png"/>
       <div className="flex flex-row justify-center gap-24 my-24">
-        <Button link="https://google.com" text='Register'></Button>
-        <Button link="https://google.com" text='Login'></Button>
+        <Button link="/api/auth/login" text='Start Your Journey'></Button>
+        <Button link="/api/auth/logout" text='Logout'></Button>
       </div>
     </div>
   );

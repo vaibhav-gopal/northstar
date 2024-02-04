@@ -3,8 +3,6 @@ export default function Button({link, text}) {
         <a
           href={link}
           className="group rounded-3xl bg-[#5B1CBA] border-transparent px-5 py-4 transition-colors hover:border-[#5B1CBA] border-2 hover:bg-transparent"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           <h2 className={`text-2xl font-semibold`}>
             {text}{" "}
