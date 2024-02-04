@@ -18,8 +18,6 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
 });
 
 async function sendPromptTest() {
-
-
   return {
     contents: [{ role: 'user', parts: [{ text: `Make an ICS file for a schedule for a student that has the following format. 
 
