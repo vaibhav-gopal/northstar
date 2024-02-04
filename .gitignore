@@ -40,3 +40,6 @@ trusty-drive-413218-7732a240ce25.json
 
 # Calendar ICS files
 calendar_*.ics
+
+# Time and Location JSON
+time_loc_data.json
