@@ -7,6 +7,9 @@ function DropDown() {
     //ik i said don't use absolute but this is an exception :3
     return (
         <div className='flex flex-col bg-[#16161E99] rounded-3xl absolute top-[120%] items-center justify-start w-full h-fit py-6 gap-4 z-50 border-4 border-[#16161E]'>
+            <Button link='/dashboard' text='Dasboard'/>
+            <Button link='/chat' text='Chat'/>
+            <Button link='/import-schedule' text='Import'/>
             <Button link='/api/auth/logout' text='Logout'/>
         </div>
     );
