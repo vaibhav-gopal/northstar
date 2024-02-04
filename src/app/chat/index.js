@@ -111,15 +111,73 @@ async function sendPromptTest() {
 
 async function sendPrompt() {
   try {
-    // Replace 'calendar_288563.ics' with the actual file name
-    const fileName = 'calendar_288563.ics';
-    const fileContent = fs.readFileSync(fileName, 'utf-8');
-    console.log(fileContent);
+    console.log("Sending prompt...")
+    //const prompt = document.getElementById("textInput");
+    const prompt = `
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//Google Inc//Google Calendar 70.9054//EN
+    CALSCALE:GREGORIAN
+    METHOD:PUBLISH
+    X-WR-CALNAME:Student Schedule
+    X-WR-TIMEZONE:America/Los_Angeles
+    BEGIN:VTIMEZONE
+    TZID:America/Los_Angeles
+    X-LIC-LOCATION:America/Los_Angeles
+    BEGIN:STANDARD
+    TZOFFSETFROM:-0800
+    TZOFFSETTO:-0800
+    TZNAME:PST
+    DTSTART:19700308T020000
+    RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+    END:STANDARD
+    BEGIN:DAYLIGHT
+    TZOFFSETFROM:-0700
+    TZOFFSETTO:-0700
+    TZNAME:PDT
+    DTSTART:19701101T020000
+    RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+    END:DAYLIGHT
+    END:VTIMEZONE
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030000
+    DTSTART;TZID=America/Los_Angeles:20230828T080000
+    DTEND;TZID=America/Los_Angeles:20230828T090000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:English class
+    LOCATION:Room 101
+    END:VEVENT
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030100
+    DTSTART;TZID=America/Los_Angeles:20230828T090000
+    DTEND;TZID=America/Los_Angeles:20230828T100000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:Math class
+    LOCATION:Room 202
+    END:VEVENT
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030200
+    DTSTART;TZID=America/Los_Angeles:20230828T100000
+    DTEND;TZID=America/Los_Angeles:20230828T110000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:Science class
+    LOCATION:Room 303
+    END:VEVENT
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030300
+    DTSTART;TZID=America/Los_Angeles:20230828T110000
+    DTEND;TZID=America/Los_Angeles:20230828T120000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:Lunch
+    LOCATION:Cafeteria
+    END:VEVENT
+    `
+    console.log("Prompt received: ", prompt);
 
     return {
       contents: [{
         role: 'user',
-        parts: [{ text: `Make changes to this ICS file to improve the schedule for a student and give them the best possible performance thorughout the day:\n${fileContent}` }],
+        parts: [{ text: `Make changes to this ICS file to improve the schedule for a student and give them the best possible performance thorughout the day. Output the improved ICS file:\n${prompt}` }],
       }],
     };
   } catch (error) {
