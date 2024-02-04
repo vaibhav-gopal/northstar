@@ -1,6 +1,7 @@
 const {VertexAI} = require('@google-cloud/vertexai');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const readline = require('readline');
 
 // Initialize Vertex with your Cloud project and location
 const vertex_ai = new VertexAI({project: 'trusty-drive-413218', location: 'northamerica-northeast1'});
@@ -18,8 +19,6 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
 });
 
 async function sendPromptTest() {
-
-
   return {
     contents: [{ role: 'user', parts: [{ text: `Make an ICS file for a schedule for a student that has the following format. 
 
@@ -113,7 +112,7 @@ async function sendPrompt() {
   try {
     console.log("Sending prompt...")
     //const prompt = document.getElementById("textInput");
-    const prompt = `
+    /*
     BEGIN:VCALENDAR
     VERSION:2.0
     PRODID:-//Google Inc//Google Calendar 70.9054//EN
@@ -171,18 +170,42 @@ async function sendPrompt() {
     SUMMARY:Lunch
     LOCATION:Cafeteria
     END:VEVENT
-    `
-    console.log("Prompt received: ", prompt);
+    */
+    
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+    
+    let filePath = "";
+    let sampleICS = "";
+    
+    rl.question('Enter the path to the ICS file: ', userInput => {
+      filePath = userInput;
+      console.log('File path entered:', filePath);
 
+      fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+          console.error('Error reading file:', err.message);
+          rl.close();
+          return;
+        }
+    
+        const sampleICS = data;
+        console.log('File content read:', sampleICS);
+        console.log("\nSending prompt...")
+        rl.close();
+      });
+    });
+    
     return {
       contents: [{
         role: 'user',
-        parts: [{ text: `Make changes to this ICS file to improve the schedule for a student and give them the best possible performance thorughout the day. Output the improved ICS file:\n${prompt}` }],
+        parts: [{ text: `Make changes to this ICS file to improve the schedule for a student and give them the best possible performance thorughout the day. Output the improved ICS file:\n${sampleICS}` }],
       }],
     };
   } catch (error) {
     console.error('Error reading file:', error.message);
-    // Handle the error or return a default prompt
     return {
       contents: [{
         role: 'user',
