@@ -17,10 +17,73 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
   safety_settings: [],
 });
 
-async function generateContent() {
-  const req = {
-    contents: [{ role: 'user', parts: [{ text: "make a schedule for a student on the day of February 3, 2024. Specify names and times of events, in the Toronto timezone. Incorporate the pomodorro method for studying, where 25 minutes of studying for a class is followed by a 5 minute break. Ensure it is in the format of an ICS file" }] }],
+async function sendPrompt() {
+  return {
+    contents: [{ role: 'user', parts: [{ text: `Make an ICS file for a schedule for a student that has the following format. In addition, make a JSON file that contains the locations (longitude and latitude) and times in the calendar where the user has to be someplace.
+
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//Google Inc//Google Calendar 70.9054//EN
+    CALSCALE:GREGORIAN
+    METHOD:PUBLISH
+    X-WR-CALNAME:Student Schedule
+    X-WR-TIMEZONE:America/Los_Angeles
+    BEGIN:VTIMEZONE
+    TZID:America/Los_Angeles
+    X-LIC-LOCATION:America/Los_Angeles
+    BEGIN:STANDARD
+    TZOFFSETFROM:-0800
+    TZOFFSETTO:-0800
+    TZNAME:PST
+    DTSTART:19700308T020000
+    RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+    END:STANDARD
+    BEGIN:DAYLIGHT
+    TZOFFSETFROM:-0700
+    TZOFFSETTO:-0700
+    TZNAME:PDT
+    DTSTART:19701101T020000
+    RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+    END:DAYLIGHT
+    END:VTIMEZONE
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030000
+    DTSTART;TZID=America/Los_Angeles:20230828T080000
+    DTEND;TZID=America/Los_Angeles:20230828T090000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:English class
+    LOCATION:Room 101
+    END:VEVENT
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030100
+    DTSTART;TZID=America/Los_Angeles:20230828T090000
+    DTEND;TZID=America/Los_Angeles:20230828T100000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:Math class
+    LOCATION:Room 202
+    END:VEVENT
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030200
+    DTSTART;TZID=America/Los_Angeles:20230828T100000
+    DTEND;TZID=America/Los_Angeles:20230828T110000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:Science class
+    LOCATION:Room 303
+    END:VEVENT
+    BEGIN:VEVENT
+    UID:040000008200E000-102A1862-00540000A3030300
+    DTSTART;TZID=America/Los_Angeles:20230828T110000
+    DTEND;TZID=America/Los_Angeles:20230828T120000
+    RRULE:FREQ=WEEKLY;UNTIL=20240607T170000Z
+    SUMMARY:Lunch
+    LOCATION:Cafeteria
+    END:VEVENT
+    ` }] }],
   };
+}
+
+async function generateContent() {
+  const req = await sendPrompt();
 
   const streamingResp = await generativeModel.generateContentStream(req);
 
@@ -39,16 +102,29 @@ async function generateContent() {
   let finalResponse = rawResponse['candidates'][0]['content']['parts'][0]['text'].replace("```", "");
   console.log(finalResponse)
 
+  const calendarMatch = finalResponse.match(/BEGIN:VCALENDAR([\s\S]*?)END:VCALENDAR/);
+  const calendarString = calendarMatch ? calendarMatch[0] : '';
+
+  // Extract the content between the first "{" and the last "}"
+  let jsonString = '';
+  const jsonMatch = finalResponse.match(/\{([\s\S]*)\}/);
+  if (jsonMatch) {
+    jsonString = "{" + jsonMatch[1] + "}";
+  }
+
   // Function to generate a random 6-digit number
   function generateRandomNumber() {
-  return Math.floor(100000 + Math.random() * 900000);
-}
+    return Math.floor(100000 + Math.random() * 900000);
+  }
 
   // Write finalResponse to a text file
   const icsFileName = `calendar_${generateRandomNumber()}.ics`;
-  fs.writeFileSync(icsFileName, finalResponse, 'utf-8');
-
+  const JSONFileName = "time_loc_data.json";
+  fs.writeFileSync(icsFileName, calendarString, 'utf-8');
   console.log(`Results written to ${icsFileName}`);
+
+  fs.writeFileSync(JSONFileName, jsonString, 'utf-8');  
+  console.log(`Results written to ${JSONFileName}`);
 }
 
 generateContent();
