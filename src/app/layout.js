@@ -13,7 +13,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="bg-[#16161E] h-fit w-full">
+        <main className="bg-[#040405] w-full h-fit overflow-auto">
+          <TopNav/>
           {children}
         </main>
       </body>
